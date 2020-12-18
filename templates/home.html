@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    {% include 'header.html' %}
+    <body>
+        <nav class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Accueil</a>
+            <a class="navbar-brand" href="{{url_for('logout')}}">Déconnexion</a>
+        </nav>
+        <br>
+        <h1>Bienvenue {{current_user.get_username()}}</h1>
+    </body>
+</html>

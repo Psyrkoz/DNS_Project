@@ -1,0 +1,15 @@
+body, html {
+    font-family: sans-serif;
+    background: #191919;
+    color: rgb(87, 86, 86);
+    height: 100%;
+    text-align: center;
+}
+
+.form-control {
+    margin-bottom: 5px;
+}
+
+input {
+    text-align: center;
+}
