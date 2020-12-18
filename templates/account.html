@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+{% include 'static/header.html' %}
+
+<body>
+    {% include 'static/navbar.html' %}
+    <br>
+    <h1>Détails du compte</h1>
+
+    <div class="container h-100">
+        <div class="row justify-content-center">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" value="{{current_user.get_username()}}" disabled>
+            </div>
+            <form class="col-8" action="{{url_for('connexion')}}" method="POST">
+                <div class="form-group">
+                    <label for="password">Current password</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Current Password">
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" placeholder="New Password">
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password Confirmation</label>
+                    <input type="password" class="form-control" id="new_password_confirm" name="new_password_confirm" placeholder="New Password">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="form-control" value="Se connecter">
+                </div>
+                <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

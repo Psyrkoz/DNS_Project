@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
     font-family: sans-serif;
     background: #191919;
     color: rgb(87, 86, 86);
@@ -12,4 +13,8 @@ body, html {
 
 input {
     text-align: center;
+}
+
+.message {
+    color: red;
 }
