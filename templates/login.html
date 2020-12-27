@@ -7,8 +7,10 @@
         <div class="row h-100 justify-content-center align-items-center">
             <form class="col-8" action="{{url_for('connexion')}}" method="POST">
                 <h1>DNS Wall</h1>
-                {% if session['message'] %}
-                <p class="message">{{ session['message'] }}</p>
+                {% if session['error_message'] %}
+                <p class="error_message">{{ session['error_message'] }}</p>
+                {% endif %} {% if session['success_message'] %}
+                <p class="success_message">{{ session['success_message'] }}</p>
                 {% endif %}
                 <div class="form-group">
                     <label for="username">Username</label>

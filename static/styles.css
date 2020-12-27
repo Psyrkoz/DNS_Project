@@ -1,3 +1,11 @@
+.error_message {
+    color: red;
+}
+
+.success_message {
+    color: green;
+}
+
 body,
 html {
     font-family: sans-serif;
@@ -13,8 +21,4 @@ html {
 
 input {
     text-align: center;
-}
-
-.message {
-    color: red;
 }
