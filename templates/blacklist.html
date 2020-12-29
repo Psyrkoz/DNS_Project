@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+{% include 'static/header.html' %}
+
+<body>
+    {% include 'static/navbar.html' %}
+    <br>
+    <div class="container h-100">
+        <form class="col-6 form-inline custom-centered" action="{{url_for('blacklist')}}" method="POST">
+            <div class="form-group row">
+                <label for="url" class="col-sm-2 col-form-label">URL</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="url" name="url" placeholder="example.com">
+                </div>
+            </div>
+            <div class="fom-group row">
+                <button type="submit" class="btn btn-secondary">Ajouter URL</button>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+        </form>
+        {% if session['error_message'] %}
+        <p class="error_message">{{ session['error_message'] }}</p>
+        {% endif %} {% if session['success_message'] %}
+        <p class="success_message">{{ session['success_message'] }}</p>
+        {% endif %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col-sm-4">URL</th>
+                    <th scope="col-sm-1">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for url in urls %}
+                <tr>
+                    <td>{{url}}</td>
+                    <td>TEST</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

@@ -10,7 +10,8 @@ body,
 html {
     font-family: sans-serif;
     background: #191919;
-    color: rgb(87, 86, 86);
+    /* color: rgb(87, 86, 86); */
+    color: white;
     height: 100%;
     text-align: center;
 }
@@ -19,6 +20,17 @@ html {
     margin-bottom: 5px;
 }
 
+.custom-centered {
+    margin: 0 auto;
+    width: 300px;
+}
+
 input {
+    text-align: center;
+}
+
+.table {
+    color: green;
+    width: fit-content;
     text-align: center;
 }

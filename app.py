@@ -83,6 +83,15 @@ def account():
             session['error_message'] = 'Le mot de passe actuel n\'est pas le bon'
         return render_template('account.html')
 
+@app.route('/blacklist', methods=['GET', 'POST'])
+@login_required
+def blacklist():
+    if request.method == "POST":
+        print(request.form['url'])
+
+    blacklistURL = functions.getBlacklistURL()
+    return render_template('blacklist.html', urls=blacklistURL)
+
 
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request

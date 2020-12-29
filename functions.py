@@ -1,4 +1,5 @@
 import re
+import os
 
 def isPasswordStrong(password):
     lengthError = len(password) < 8
@@ -8,3 +9,14 @@ def isPasswordStrong(password):
     symbolError = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password) is None
 
     return not (lengthError or digitError or uppercaseError or lowercaseError or symbolError)
+
+def getBlacklistURL():
+    try:
+        file = open('/etc/unbound/unbound.conf.d/blacklist.lst', 'r')
+        content = file.read()
+        urls = re.findall(r"\"(.+)\" static")
+        print(urls)
+    except IOError:
+        return []
+
+    return []
