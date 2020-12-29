@@ -42,6 +42,7 @@ def deleteURL(url):
             if(line.strip() != "local-zone: \"" + url + "\" static"):
                 file.write(line)
 
+        os.system("sudo service unbound restart")
         return "L'URL '" + url + "' à bien été supprimé", ""
     except IOError:
         return "", "Impossible de supprimer l'URL '" + url + "'"
