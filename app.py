@@ -89,11 +89,16 @@ def account():
 def blacklist():
     if request.method == "POST":
         print(request.form['url'])
-        functions.addURLtoBlacklist(request.form['url'])
+        session['success_message'], session['error_message'] = functions.addURLtoBlacklist(request.form['url'])
 
     blacklistURL = functions.getBlacklistURL()
     return render_template('blacklist.html', urls=blacklistURL)
 
+@app.route('/delete/<string:url>')
+@login_required
+def delete(url):
+    session['success_message'], session['error_message'] = functions.deleteURL(url)
+    return render_template('blacklist.html', urls=functions.getBlacklistURL())
 
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request
@@ -122,7 +127,6 @@ if(__name__ == '__main__'):
             login.login_view = 'connexion'
             csrf = CSRFProtect()
             csrf.init_app(app)
-
             app.run(debug=True, port=5000)
     else:
         print("This app should be runned on Linux only")

@@ -34,7 +34,7 @@
                 {% for url in urls %}
                 <tr>
                     <td>{{url}}</td>
-                    <td>TEST</td>
+                    <td><a href="{{url_for('delete', url=url)}}"><i class="fa fa-trash"></i></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

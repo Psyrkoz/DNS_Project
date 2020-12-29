@@ -25,7 +25,23 @@ def addURLtoBlacklist(url):
         file = open('/etc/unbound/unbound.conf.d/blacklist.lst', 'a')
         file.write("local-zone: \"" + url + "\" static\n")
         file.close()
-
         os.system("sudo service unbound restart")
+
+        return "L'URL '" + url + "' à bien été ajouté à la blacklist", ""
     except IOError:
-        print("Error writing new URL")
+        return "", "Erreur lors de l'ajout de '" + url + "' à la blacklist"
+
+def deleteURL(url):
+    try:
+        file = open("/etc/unbound/unbound.conf.d/blacklist.lst", 'r')
+        lines = file.readlines()
+        file.close()
+
+        file = open("/etc/unbound/unbound.conf.d/blacklist.lst", 'w')
+        for line in lines:
+            if(line.strip() != "local-zone: \"" + url + "\" static"):
+                file.write(line)
+
+        return "L'URL '" + url + "' à bien été supprimé", ""
+    except IOError:
+        return "", "Impossible de supprimer l'URL '" + url + "'"
