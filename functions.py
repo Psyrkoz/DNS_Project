@@ -14,9 +14,18 @@ def getBlacklistURL():
     try:
         file = open('/etc/unbound/unbound.conf.d/blacklist.lst', 'r')
         content = file.read()
-        urls = re.findall(r"\"(.+)\" static")
-        print(urls)
+        file.close()
+        urls = re.findall(r"\"(.+)\" static", content)
+        return urls
     except IOError:
         return []
 
-    return []
+def addURLtoBlacklist(url):
+    try:
+        file = open('/etc/unbound/unbound.conf.d/blacklist.lst', 'a')
+        file.write("local-zone: \"" + url + "\" static\n")
+        file.close()
+
+        os.system("sudo service unbound restart")
+    except IOError:
+        print("Error writing new URL")

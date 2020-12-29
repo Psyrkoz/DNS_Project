@@ -88,6 +88,7 @@ def account():
 def blacklist():
     if request.method == "POST":
         print(request.form['url'])
+        functions.addURLtoBlacklist(request.form['url'])
 
     blacklistURL = functions.getBlacklistURL()
     return render_template('blacklist.html', urls=blacklistURL)
@@ -101,20 +102,23 @@ def resetMessage(response):
     return response
 
 if(__name__ == '__main__'):
-    ### Initialise l'application
-    app.secret_key = os.urandom(24)
-    app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{}:{}@{}:{}/{}".format('root', '', 'localhost', 3306, 'dnsproject')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SESSION_TYPE'] = 'sqlalchemy'
-    app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
-    app.config['SESSION_SQLALCHEMY'] = db
-    app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
+    if(os.geteuid() != 0):
+        print("This app should be runned as root")
+    else:
+        ### Initialise l'application
+        app.secret_key = os.urandom(24)
+        app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{}:{}@{}:{}/{}".format('root', '', 'localhost', 3306, 'dnsproject')
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['SESSION_TYPE'] = 'sqlalchemy'
+        app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
+        app.config['SESSION_SQLALCHEMY'] = db
+        app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
 
-    ### Initialise les components (DB, Login, CSRF)
-    db.init_app(app)
-    login.init_app(app)
-    login.login_view = 'connexion'
-    csrf = CSRFProtect()
-    csrf.init_app(app)
+        ### Initialise les components (DB, Login, CSRF)
+        db.init_app(app)
+        login.init_app(app)
+        login.login_view = 'connexion'
+        csrf = CSRFProtect()
+        csrf.init_app(app)
 
-    app.run(debug=True, port=5000)
+        app.run(debug=True, port=5000)
