@@ -6,6 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 from user import UserModel, db,login
 from is_safe_url import is_safe_url
 from sys import platform
+from werkzeug.utils import secure_filename
 import datetime
 import functions
 import os
@@ -100,6 +101,28 @@ def delete(url):
     session['success_message'], session['error_message'] = functions.deleteURL(url)
     return render_template('blacklist.html', urls=functions.getBlacklistURL())
 
+@app.route('/blacklist_addList', methods=['POST'])
+@login_required
+def blacklist_addList():
+    if request.method == "POST":
+        if 'file' not in request.files:
+            session['error_message'] = "Vous devez spécifier un fichier"
+
+        file = request.files['file']
+        if file.filename == '':
+            session['error_message'] = "Vous devez spécifier un fichier"
+        
+        if file and functions.allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(path)
+            session['success_message'], session['error_message'] = functions.addListToBlacklist(path)
+            os.remove(path)
+        else:
+            session['error_message'] = "Il faut choisir un fichier .txt"
+
+    return render_template('blacklist.html', urls=functions.getBlacklistURL())
+
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request
 def resetMessage(response):
@@ -120,6 +143,7 @@ if(__name__ == '__main__'):
             app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
             app.config['SESSION_SQLALCHEMY'] = db
             app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
+            app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.abspath(__file__)) + "/uploads/"
 
             ### Initialise les components (DB, Login, CSRF)
             db.init_app(app)

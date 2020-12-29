@@ -6,6 +6,7 @@
     {% include 'static/navbar.html' %}
     <br>
     <div class="container h-100">
+        <!-- Formulaire d'ajout d'url unique -->
         <form class="col-6 form-inline custom-centered" action="{{url_for('blacklist')}}" method="POST">
             <div class="form-group row">
                 <label for="url" class="col-sm-2 col-form-label">URL</label>
@@ -13,11 +14,26 @@
                     <input type="text" class="form-control" id="url" name="url" placeholder="example.com">
                 </div>
             </div>
-            <div class="fom-group row">
+            <div class="form-group row">
                 <button type="submit" class="btn btn-secondary">Ajouter URL</button>
             </div>
+            
             <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
         </form>
+        <br>
+
+        <!-- Formulaire d'ajout d'url par fichier -->
+        <form class="col-6 form-inline custom-centered" action="{{url_for('blacklist_addList')}}" method="POST" enctype="multipart/form-data">
+            <div class="form-group row">
+                <label for="file">Fichier contenent les URL</label>
+                <input type="file" class="btn btn-secondary" name="file" id="file"></button>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+            <div class="form-group row">
+                <button type="submit" class="btn btn-secondary">Ajouter une liste d'URL</button>
+            </div>
+        </form>
+        
         {% if session['error_message'] %}
         <p class="error_message">{{ session['error_message'] }}</p>
         {% endif %} {% if session['success_message'] %}
@@ -34,7 +50,7 @@
                 {% for url in urls %}
                 <tr>
                     <td>{{url}}</td>
-                    <td><a href="{{url_for('delete', url=url)}}"><i class="fa fa-trash"></i></a></td>
+                    <td><a href="{{url_for('delete', url=url)}}">Supprimer <i class="fa fa-trash"></i></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

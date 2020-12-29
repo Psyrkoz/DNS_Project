@@ -1,6 +1,8 @@
 import re
 import os
 
+ALLOWED_EXTENSION = {'txt'}
+
 def isPasswordStrong(password):
     lengthError = len(password) < 8
     digitError = re.search(r"\d", password) is None
@@ -18,7 +20,27 @@ def getBlacklistURL():
         urls = re.findall(r"\"(.+)\" static", content)
         return urls
     except IOError:
+        print("WTF BBQ")
         return []
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
+
+def addListToBlacklist(path):
+    try:
+        file = open(path, 'r')
+        blacklist = open('/etc/unbound/unbound.conf.d/blacklist.lst', 'a')
+        urls = file.readlines()
+
+        for url in urls:
+            blacklist.write("local-zone: \"" + url.strip() + "\" static\n")
+        blacklist.close()
+        file.close()
+
+        os.system("sudo service unbound restart")
+        return "Les URLs ont bien été ajouté à la blacklist", ""
+    except IOError:
+        return "", "Impossible d'écrire les nouvelles URL dans la blacklist"
 
 def addURLtoBlacklist(url):
     try:
