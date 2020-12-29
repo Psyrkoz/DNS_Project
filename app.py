@@ -5,6 +5,7 @@ from flask_sessionstore import Session
 from flask_wtf.csrf import CSRFProtect
 from user import UserModel, db,login
 from is_safe_url import is_safe_url
+from sys import platform
 import datetime
 import functions
 import os
@@ -102,23 +103,26 @@ def resetMessage(response):
     return response
 
 if(__name__ == '__main__'):
-    if(os.geteuid() != 0):
-        print("This app should be runned as root")
+    if platform == "linux" or platform == "linux2":
+        if(os.geteuid() != 0):
+            print("This app should be runned as root")
+        else:
+            ### Initialise l'application
+            app.secret_key = os.urandom(24)
+            app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{}:{}@{}:{}/{}".format('root', '', 'localhost', 3306, 'dnsproject')
+            app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+            app.config['SESSION_TYPE'] = 'sqlalchemy'
+            app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
+            app.config['SESSION_SQLALCHEMY'] = db
+            app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
+
+            ### Initialise les components (DB, Login, CSRF)
+            db.init_app(app)
+            login.init_app(app)
+            login.login_view = 'connexion'
+            csrf = CSRFProtect()
+            csrf.init_app(app)
+
+            app.run(debug=True, port=5000)
     else:
-        ### Initialise l'application
-        app.secret_key = os.urandom(24)
-        app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{}:{}@{}:{}/{}".format('root', '', 'localhost', 3306, 'dnsproject')
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        app.config['SESSION_TYPE'] = 'sqlalchemy'
-        app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
-        app.config['SESSION_SQLALCHEMY'] = db
-        app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
-
-        ### Initialise les components (DB, Login, CSRF)
-        db.init_app(app)
-        login.init_app(app)
-        login.login_view = 'connexion'
-        csrf = CSRFProtect()
-        csrf.init_app(app)
-
-        app.run(debug=True, port=5000)
+        print("This app should be runned on Linux only")
