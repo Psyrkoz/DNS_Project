@@ -8,3 +8,5 @@ Modify /etc/resolv.conf upon start (to set up the DNS server to this machine IP 
 Modify default.conf to set up the forward-zone with standard value like Google open DNS (8.8.8.8 & 8.8.4.4)
 
 Teste les fichiers de blocklist suivant: https://github.com/justdomains/blocklists#easylist-domains-only (Ca a l'air de marcher tranquillou, juste le loading de la blacklist qui est long)
+
+Ajouter une page "Options" pour supprimer toute la blacklist et peut être faire un bouton pour setup les étapes au dessus (les fichiers .conf)
