@@ -1,9 +1,11 @@
-Create requirements file (Flask, ...)
-Check if unbound installed
+Create requirements file (Flask, ...) - Done
+Check if unbound started / installed
+Add a "statistic page" on "/"
 Create file default.conf & blacklist.conf upon start
     If they already exists, don't do anything
     Else, create them with templated value
 Modify /etc/resolv.conf upon start (to set up the DNS server to this machine IP adress (192.168.1.19 for my VM))
 Modify default.conf to set up the forward-zone with standard value like Google open DNS (8.8.8.8 & 8.8.4.4)
+Add SSL
 
 Teste les fichiers de blocklist suivant: https://github.com/justdomains/blocklists#easylist-domains-only

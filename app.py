@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 import datetime
 import functions
 import os
+import config
 
 app = Flask(__name__, template_folder="templates")
 
@@ -54,7 +55,8 @@ def connexion():
 @app.route('/home', methods=['GET'])
 @login_required
 def home():
-    return render_template('home.html')
+    servicesStatus = True if os.system("sudo systemctl is-active --quiet unbound") == 0 else False
+    return render_template('home.html', status = servicesStatus)
 
 @app.route('/logout')
 @login_required
@@ -130,27 +132,43 @@ def resetMessage(response):
     session['error_message'] = ""
     return response
 
+def startApp():
+    ### Initialise l'application
+    app.secret_key = os.urandom(24)
+    app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{}:{}@{}:{}/{}".format(config.database_user, config.database_password, config.database_url, config.database_port, config.database_name)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SESSION_TYPE'] = 'sqlalchemy'
+    app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
+    app.config['SESSION_SQLALCHEMY'] = db
+    app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
+    app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.abspath(__file__)) + "/uploads/"
+
+    ### Initialise les components (DB, Login, CSRF)
+    db.init_app(app)
+    login.init_app(app)
+    login.login_view = 'connexion'
+    csrf = CSRFProtect()
+    csrf.init_app(app)
+    app.run(debug=False, port=config.application_port)
+
 if(__name__ == '__main__'):
     if platform == "linux" or platform == "linux2":
         if(os.geteuid() != 0):
             print("This app should be runned as root")
         else:
-            ### Initialise l'application
-            app.secret_key = os.urandom(24)
-            app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{}:{}@{}:{}/{}".format('root', '', 'localhost', 3306, 'dnsproject')
-            app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-            app.config['SESSION_TYPE'] = 'sqlalchemy'
-            app.config['SESSION_SQLALCHEMY_TABLE'] = "sessions"
-            app.config['SESSION_SQLALCHEMY'] = db
-            app.config['PERMANENT_SESSION_LIFETIME'] = 30*60 # 30 minutes
-            app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.abspath(__file__)) + "/uploads/"
-
-            ### Initialise les components (DB, Login, CSRF)
-            db.init_app(app)
-            login.init_app(app)
-            login.login_view = 'connexion'
-            csrf = CSRFProtect()
-            csrf.init_app(app)
-            app.run(debug=True, port=5000)
+            # Verifie que unbound est lancé
+            service = os.system("sudo systemctl is-active --quiet unbound")
+            if(service == 0): # 0 = started, 768 = stopped
+                startApp()
+            else:
+                print("Unbound service is stopped or does not exist...")
+                print("Trying to start the service...")
+                os.system("sudo service unbound start")
+                service = os.system("sudo systemctl is-active --quiet unbound")
+                if(service == 0):
+                    print("The service unbound as been started... Starting app")
+                    startApp()
+                else:
+                    print("Before using this app, you should install unbound")
     else:
-        print("This app should be runned on Linux only")
+        print("This app should be runned on Linux")
