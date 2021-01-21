@@ -4,8 +4,11 @@ Add a "statistic page" on "/"
 Create file default.conf & blacklist.conf upon start
     If they already exists, don't do anything
     Else, create them with templated value
+    Modify the unbound.conf (dans /etc/unbound/) pour lui faire inclure tout les fichiers .conf (include: /etc/unbound/unbound.conf.d/*.conf)
 Modify /etc/resolv.conf upon start (to set up the DNS server to this machine IP adress (192.168.1.19 for my VM))
 Modify default.conf to set up the forward-zone with standard value like Google open DNS (8.8.8.8 & 8.8.4.4)
 Add SSL
 
-Teste les fichiers de blocklist suivant: https://github.com/justdomains/blocklists#easylist-domains-only
+Teste les fichiers de blocklist suivant: https://github.com/justdomains/blocklists#easylist-domains-only (Ca a l'air de marcher tranquillou, juste le loading de la blacklist qui est long)
+
+Ajouter une page "Options" pour supprimer toute la blacklist et peut être faire un bouton pour setup les étapes au dessus (les fichiers .conf)
