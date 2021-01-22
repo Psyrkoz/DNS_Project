@@ -55,7 +55,7 @@ def connexion():
 @app.route('/home', methods=['GET'])
 @login_required
 def home():
-    servicesStatus = True if os.system("sudo systemctl is-active --quiet unbound") == 0 else False
+    servicesStatus = functions.getServiceStatus()
     return render_template('home.html', status = servicesStatus)
 
 @app.route('/logout')
@@ -125,6 +125,25 @@ def blacklist_addList():
 
     return render_template('blacklist.html', urls=functions.getBlacklistURL())
 
+@app.route('/parameters', methods=['GET'])
+@login_required
+def parameters():
+    servicesStatus = functions.getServiceStatus()
+    blackListCount = functions.getBlacklistCount()
+    
+    if(servicesStatus):
+        uptime, number_query, query_blocked = functions.getUnboundStats()
+        return render_template('parameters.html', status=servicesStatus, blacklistcount=blackListCount, uptime=uptime, number_query=number_query, query_blocked=query_blocked)
+    else:
+        return render_template('parameters.html', status=servicesStatus)
+    
+
+@app.route('/parameters/<string:method>')
+@login_required
+def parametersMethods(method):
+    functions.handleParametersArgument(method)
+    return redirect('/parameters')
+
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request
 def resetMessage(response):
@@ -162,13 +181,6 @@ if(__name__ == '__main__'):
                 startApp()
             else:
                 print("Unbound service is stopped or does not exist...")
-                print("Trying to start the service...")
-                os.system("sudo service unbound start")
-                service = os.system("sudo systemctl is-active --quiet unbound")
-                if(service == 0):
-                    print("The service unbound as been started... Starting app")
-                    startApp()
-                else:
-                    print("Before using this app, you should install unbound")
+                startApp()
     else:
         print("This app should be runned on Linux")

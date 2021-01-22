@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    {% include 'static/header.html' %}
+
+    <body>
+        {% include 'static/navbar.html' %}
+        <br>
+        <h1>Paramètres</h1>
+        <div class="container h-100">
+            <ul>
+                <li>Status du service unbound:&nbsp;&nbsp;{% if status %}<div class="check"></div>{% endif %}{% if not status %}&#10060;{% endif %}</li>
+                <li>
+                    {% if status %}
+                    <a class="btn btn-secondary">Lancer le service unbound</a>
+                    <a class="btn btn-success" href="{{url_for('parametersMethods', method='restartUnbound')}}">Relancer le service unbound</a>
+                    <a class="btn btn-success" href="{{url_for('parametersMethods', method='stopUnbound')}}">Stopper le service unbound</a>
+                    {% endif %}
+
+                    {% if not status %}
+                    <a class="btn btn-success" href="{{url_for('parametersMethods', method='startUnbound')}}">Lancer le service unbound</a>
+                    <a class="btn btn-secondary">Relancer le service unbound</a>
+                    <a class="btn btn-secondary">Stopper le service unbound</a>
+                    {% endif %}
+                </li>
+            </ul>
+                {% if status %}
+                <div class="row">
+                    <div class="col">
+                        <div class="card text-white bg-danger">
+                            <div class="card-header">Nombre de site dans la blacklist</div>
+                            <div class="card-body">
+                            <p class="card-text">{{blacklistcount}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card text-white bg-danger">
+                            <div class="card-header">Uptime</div>
+                            <div class="card-body">
+                                <p class="card-text">{{uptime}} secondes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <div class="card text-white bg-danger">
+                            <div class="card-header">Nombre de requête traité</div>
+                            <div class="card-body">
+                            <p class="card-text">{{number_query}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card text-white bg-danger">
+                            <div class="card-header">Nombre de requête bloqué</div>
+                            <div class="card-body">
+                            <p class="card-text">{{query_blocked}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if not status %}
+                <p>Pour avoir les statistiques, veuillez lancer le service unbound</p>
+                {% endif %}
+        </div>
+    </body>
+</html>
