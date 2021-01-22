@@ -1,14 +1,16 @@
 Create requirements file (Flask, ...) - Done
-Check if unbound started / installed
-Add a "statistic page" on "/"
-Create file default.conf & blacklist.conf upon start
+Check if unbound started / installed - Done
+Add a "statistic page" on "/" (~ presque fait, elle sont sur /parameters, peut être supprimé le / et crée une page "/" sans besoin de co pour avoir un overview (uptime, requêtes, requêtes bloqué))
+Create file default.conf 
     If they already exists, don't do anything
     Else, create them with templated value
-    Modify the unbound.conf (dans /etc/unbound/) pour lui faire inclure tout les fichiers .conf (include: /etc/unbound/unbound.conf.d/*.conf)
-Modify /etc/resolv.conf upon start (to set up the DNS server to this machine IP adress (192.168.1.19 for my VM))
-Modify default.conf to set up the forward-zone with standard value like Google open DNS (8.8.8.8 & 8.8.4.4)
-Add SSL
+    Modify the unbound.conf (dans config.unbound_folder/unbound.conf) pour lui faire inclure tout les fichiers .conf (include: /etc/unbound/unbound.conf.d/*.conf)
+Modify /etc/resolv.conf upon start (to set up the DNS server to use to this machine IP adress (192.168.1.19 for my VM))
+Modify default.conf to set up the forward-zone with standard value like Google open DNS (8.8.8.8 & 8.8.4.4) - Done
+Gestion de multiple blacklist - Done
+Add SSL - Done
 
 Teste les fichiers de blocklist suivant: https://github.com/justdomains/blocklists#easylist-domains-only (Ca a l'air de marcher tranquillou, juste le loading de la blacklist qui est long)
 
-Ajouter une page "Options" pour supprimer toute la blacklist et peut être faire un bouton pour setup les étapes au dessus (les fichiers .conf)
+Ajouter une page "Options" pour supprimer toute la blacklist (fait) et peut être faire un bouton pour setup les étapes au dessus (les fichiers .conf) (sûrement a mettre dans /parameters)
+Rajouter un onglet log ou on va mettre tout le contenu de unbound.log

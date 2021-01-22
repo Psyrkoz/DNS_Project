@@ -87,25 +87,30 @@ def account():
             session['error_message'] = 'Le mot de passe actuel n\'est pas le bon'
         return render_template('account.html')
 
-@app.route('/blacklist', methods=['GET', 'POST'])
+@app.route('/blacklist/<string:blacklistName>', methods=['GET', 'POST'])
 @login_required
-def blacklist():
+def blacklist(blacklistName):
     if request.method == "POST":
-        print(request.form['url'])
-        session['success_message'], session['error_message'] = functions.addURLtoBlacklist(request.form['url'])
+        session['success_message'], session['error_message'] = functions.addURLtoBlacklist(blacklistName, request.form['url'])
 
-    blacklistURL = functions.getBlacklistURL()
-    return render_template('blacklist.html', urls=blacklistURL)
+    blacklistURL = functions.getBlacklistURL(blacklistName)
+    return render_template('blacklist.html', blacklistName=blacklistName, urls=blacklistURL)
 
-@app.route('/delete/<string:url>')
+@app.route('/blacklist/<string:blacklistName>/delete')
 @login_required
-def delete(url):
-    session['success_message'], session['error_message'] = functions.deleteURL(url)
-    return render_template('blacklist.html', urls=functions.getBlacklistURL())
+def deleteBlacklist(blacklistName):
+    functions.deleteBlacklist(blacklistName)
+    return redirect('/parameters')
 
-@app.route('/blacklist_addList', methods=['POST'])
+@app.route('/blacklist/<string:blacklistName>/delete/<string:url>')
 @login_required
-def blacklist_addList():
+def delete(blacklistName, url):
+    session['success_message'], session['error_message'] = functions.deleteURL(blacklistName, url)
+    return render_template('blacklist.html', urls=functions.getBlacklistURL(blacklistName))
+
+@app.route('/blacklist/<string:blacklistName>/add_list', methods=['POST'])
+@login_required
+def blacklist_addList(blacklistName):
     if request.method == "POST":
         if 'file' not in request.files:
             session['error_message'] = "Vous devez spécifier un fichier"
@@ -118,24 +123,31 @@ def blacklist_addList():
             filename = secure_filename(file.filename)
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
-            session['success_message'], session['error_message'] = functions.addListToBlacklist(path)
+            session['success_message'], session['error_message'] = functions.addListToBlacklist(blacklistName, path)
             os.remove(path)
         else:
             session['error_message'] = "Il faut choisir un fichier .txt"
 
-    return render_template('blacklist.html', urls=functions.getBlacklistURL())
+    return render_template('blacklist.html', urls=functions.getBlacklistURL(blacklistName))
 
 @app.route('/parameters', methods=['GET'])
 @login_required
 def parameters():
     servicesStatus = functions.getServiceStatus()
-    blackListCount = functions.getBlacklistCount()
-    
+    blacklistFiles = functions.getBlacklistFilesAndUsage()
     if(servicesStatus):
+        blackListCount = functions.getBlacklistCount()
         uptime, number_query, query_blocked = functions.getUnboundStats()
-        return render_template('parameters.html', status=servicesStatus, blacklistcount=blackListCount, uptime=uptime, number_query=number_query, query_blocked=query_blocked)
+        return render_template('parameters.html', status=servicesStatus, blacklistFiles=blacklistFiles, blacklistcount=blackListCount, uptime=uptime, number_query=number_query, query_blocked=query_blocked)
     else:
-        return render_template('parameters.html', status=servicesStatus)
+        return render_template('parameters.html', status=servicesStatus, blacklistFiles=blacklistFiles)
+
+@app.route('/parameters', methods=['POST'])
+@login_required
+def changeParameters():
+    newBlacklistFilesUsages = dict(zip(request.form.getlist('blacklistName[]'), request.form.getlist('blacklistUsage[]')))
+    functions.setNewBlacklistUsages(newBlacklistFilesUsages)
+    return redirect('/parameters')
     
 
 @app.route('/parameters/<string:method>')
@@ -168,7 +180,7 @@ def startApp():
     login.login_view = 'connexion'
     csrf = CSRFProtect()
     csrf.init_app(app)
-    app.run(debug=False, port=config.application_port)
+    app.run(debug=False, port=config.application_port, ssl_context=('cert.pem', 'key.pem'))
 
 if(__name__ == '__main__'):
     if platform == "linux" or platform == "linux2":
