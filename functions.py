@@ -178,6 +178,23 @@ def setNewBlacklistUsages(newBlacklistUsage):
 
     os.system("sudo service unbound restart")
 
+
+# Crée le fichier [name].lst dans le répertoire unbound.conf.d
+# Retourne un message d'erreur si il est impossible de créer le fichier
+# Seul des caractères alphabétique sont autorisés
+def createBlacklist(name):
+    if os.path.isfile(config.unbound_folder + "/unbound.conf.d/" + name + ".lst"):
+        return "Une blacklist avec le même nom existe déjà"
+    else:
+        if name.isalpha():
+            try:
+                open(config.unbound_folder + "/unbound.conf.d/" + name + ".lst", 'x')
+                return ""
+            except IOError:
+                return "Une erreur non attendu est survenu..."
+        else:
+            return "Le nom de la blacklist ne peut que contenir des lettres"
+    
     
 
     

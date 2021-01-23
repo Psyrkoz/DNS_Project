@@ -130,6 +130,20 @@ def blacklist_addList(blacklistName):
 
     return render_template('blacklist.html', urls=functions.getBlacklistURL(blacklistName))
 
+@app.route('/blacklist/create', methods=['GET', 'POST'])
+@login_required
+def create_blacklist():
+    if (request.method == "POST"):
+        session['error_message'] = functions.createBlacklist(request.form.get('name'))
+        if session['error_message'] != '':
+            return render_template('blacklist_create.html')
+        else:
+            return redirect('/parameters')
+        
+    return render_template('blacklist_create.html')
+
+### Gère les pages /parameters
+
 @app.route('/parameters', methods=['GET'])
 @login_required
 def parameters():

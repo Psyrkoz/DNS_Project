@@ -6,7 +6,7 @@
         {% include 'static/navbar.html' %}
         <br>
         <h1>Paramètres</h1>
-        <div class="container-fluid">
+        <div class="container">
             <ul>
                 <li>Status du service unbound:&nbsp;&nbsp;{% if status %}<div class="check"></div>{% endif %}{% if not status %}&#10060;{% endif %}</li>
                 <li>
@@ -23,6 +23,7 @@
                     {% endif %}
                 </li>
             </ul>
+            
             <form class="col-12 form-inline" action="{{url_for('changeParameters')}}" method="POST">
                 <table class="table" width="50%">
                     <thead>
@@ -45,6 +46,9 @@
                     </tbody>
                 </table>
                 <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                <div class="form-group row">
+                    <a class="btn btn-success" href="{{url_for('create_blacklist')}}">Créer une nouvelle blacklist</a>
+                </div>
                 <div class="form-group row">
                     <button type="submit" class="btn btn-success">Modifier utilisation des blacklist</button>
                 </div>
