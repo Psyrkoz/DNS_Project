@@ -10,7 +10,7 @@
     <div class="container h-100">
         <div class="row justify-content-center">
             <form class="col-8" action="{{url_for('account')}}" method="POST">
-                <div class="form-group col-8">
+                <div class="form-group">
                     <label for="username">Nom de compte</label>
                     <input type="text" class="form-control" id="username" name="username" placeholder="Username" value="{{current_user.get_username()}}">
                 </div>
