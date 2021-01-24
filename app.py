@@ -31,7 +31,7 @@ def init():
         db.session.add(user)
         db.session.commit()
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def root():
     if current_user.is_authenticated:
         return redirect(url_for('parameters'))
@@ -65,7 +65,7 @@ def home():
     servicesStatus = functions.getServiceStatus()
     return render_template('home.html', status = servicesStatus)
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()
@@ -114,13 +114,13 @@ def blacklist(blacklistName):
     blacklistURL = functions.getBlacklistURL(blacklistName)
     return render_template('blacklist.html', blacklistName=blacklistName, urls=blacklistURL)
 
-@app.route('/blacklist/<string:blacklistName>/delete')
+@app.route('/blacklist/<string:blacklistName>/delete', methods=['GET'])
 @login_required
 def deleteBlacklist(blacklistName):
     functions.deleteBlacklist(blacklistName)
     return redirect('/parameters')
 
-@app.route('/blacklist/<string:blacklistName>/delete/<string:url>')
+@app.route('/blacklist/<string:blacklistName>/delete/<string:url>', methods=['GET'])
 @login_required
 def delete(blacklistName, url):
     session['success_message'], session['error_message'] = functions.deleteURL(blacklistName, url)
@@ -188,11 +188,13 @@ def changeParameters():
     return redirect('/parameters')
     
 
-@app.route('/parameters/<string:method>')
+@app.route('/parameters/<string:method>', methods=['GET'])
 @login_required
 def parametersMethods(method):
     functions.handleParametersArgument(method)
     return redirect('/parameters')
+
+### Gère les urls /log
 
 @app.route('/log', methods=['GET'])
 @login_required
@@ -205,6 +207,13 @@ def view_log():
 def empty_logs():
     functions.empty_logs()    
     return redirect('/log')
+
+### Gère les urls /statistics
+@app.route('/statistics', methods=['GET'])
+@login_required
+def statistics():
+    answerTypesAndCount, queryTypesAndCount, cacheTypesAndCount = functions.getUnboundAdvancedStats()
+    return render_template('statistics.html', answerTypesAndCount=answerTypesAndCount, queryTypesAndCount=queryTypesAndCount, cacheTypesAndCount=cacheTypesAndCount)
 
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request

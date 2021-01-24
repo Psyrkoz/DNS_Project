@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+{% include 'static/header.html' %}
+
+<body>
+    {% include 'static/navbar.html' %}
+    <br>
+    <div style="width: 100%; height: 50%;">
+        <div class="chart-container" style="height:100%; width: 50%; display:inline-block;">
+            <canvas id="ctxAnswerTypes">Réponse</canvas>
+        </div>
+        <div class="chart-container" style="height:100%; width: 50%; display:inline-block;">
+            <canvas id="ctxQueryTypes"></canvas>
+        </div>
+        <div class="chart-container" style="height:100%; width: 50%; display:inline-block;">
+            <canvas id="ctxCache"></canvas>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{url_for('static', filename='Chart.min.js')}}"></script>
+    <script>
+        
+        var ctxAnswerTypes = document.getElementById("ctxAnswerTypes");
+        var ctxQueryTypes = document.getElementById("ctxQueryTypes");
+        var ctxCache = document.getElementById("ctxCache");
+        
+        // Gère les answers types
+        dataAnswer = []
+        labelsAnswer = []
+        {% for tuples in answerTypesAndCount %}
+        dataAnswer.push({{tuples[1]}});
+        labelsAnswer.push('{{tuples[0]}}');
+        {% endfor %}
+
+        backgroundColorsAnswer = ['#008000', '#FFA500', '#5959F9', '#FF4343', '#E143FF', '#8A2BE2', '#008b8b']
+        var datasAnswer = {
+            datasets: [{
+                data: dataAnswer,
+                backgroundColor: backgroundColorsAnswer
+            }],
+            labels: labelsAnswer
+        }
+        
+        // Gère les query types
+        dataQuery = []
+        labelsQuery = []
+        {% for tuples in queryTypesAndCount %}
+        dataQuery.push({{tuples[1]}});
+        labelsQuery.push('{{tuples[0]}}');
+        {% endfor %}
+        backgroundColorsQuery = ['#008b8b', '#cd5c5c', '#c71585', '#9acd32'];
+
+        var datasQuery = {
+            datasets: [{
+                data: dataQuery,
+                backgroundColor: backgroundColorsQuery
+            }],
+            labels: labelsQuery
+        }
+
+        // Cache hit / miss
+        dataCache = []
+        labelsCache = []
+        {% for tuples in cacheTypesAndCount %}
+        dataCache.push({{tuples[1]}});
+        labelsCache.push('{{tuples[0]}}');
+        {% endfor %}
+        backgroundColorsCache = ['#008b8b', '#cd5c5c', '#c71585', '#9acd32'];
+
+        var datasCache = {
+            datasets: [{
+                data: dataCache,
+                backgroundColor: backgroundColorsCache
+            }],
+            labels: labelsCache
+        }
+
+        // Affiche les charts
+        var answerChart = new Chart(ctxAnswerTypes, {
+            type: 'pie',
+            data: datasAnswer,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    text: "Réponse"
+                }
+            }
+        });
+
+        var queryChart = new Chart(ctxQueryTypes, {
+            type: 'pie',
+            data: datasQuery,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    text: "Requête"
+                }
+            }
+        });
+
+        var queryChart = new Chart(ctxCache, {
+            type: 'pie',
+            data: datasCache,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    text: "Cache Hits & Miss"
+                }
+            }
+        });
+
+  </script>
+</body>
+
+</html>

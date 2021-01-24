@@ -47,10 +47,10 @@
                 </table>
                 <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
                 <div class="form-group row">
-                    <a class="btn btn-success" href="{{url_for('create_blacklist')}}">Créer une nouvelle blacklist</a>
+                    <button type="submit" class="btn btn-success">Modifier utilisation des blacklist</button>
                 </div>
                 <div class="form-group row">
-                    <button type="submit" class="btn btn-success">Modifier utilisation des blacklist</button>
+                    <a class="btn btn-success" href="{{url_for('create_blacklist')}}">Créer une nouvelle blacklist</a>
                 </div>
             </form>
             <br>

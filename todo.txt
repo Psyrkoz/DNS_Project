@@ -1,3 +1,5 @@
+--- All done
+
 Create requirements file (Flask, ...) - Done
 Check if unbound started / installed - Done
 Add a "statistic page" on "/" (~ presque fait, elle sont sur /parameters, peut être supprimé le / et crée une page "/" sans besoin de co pour avoir un overview (uptime, requêtes, requêtes bloqué))

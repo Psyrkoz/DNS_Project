@@ -167,6 +167,26 @@ def getUnboundStats():
         return "/", "/", "/"
 
 
+def getUnboundAdvancedStats():
+    stats = str(subprocess.check_output(['sudo', 'unbound-control', 'stats']))
+    try:
+        answerTypesAndCount = re.findall(r"num\.answer\.rcode.(\w+)=(\d+)", stats)
+        queryTypesAndCount = re.findall(r"num\.query\.type\.(\w+)=(\d+)", stats)
+        cacheTypesAndCount = re.findall(r"total.num.cache(\w+)=(\d+)", stats)
+
+        for i in range(len(answerTypesAndCount)):
+            answerTypesAndCount[i] = (answerTypesAndCount[i][0], int(answerTypesAndCount[i][1]))
+
+        for i in range(len(queryTypesAndCount)):
+            queryTypesAndCount[i] = (queryTypesAndCount[i][0], int(queryTypesAndCount[i][1]))
+
+        for i in range(len(cacheTypesAndCount)):
+            cacheTypesAndCount[i] = (cacheTypesAndCount[i][0], int(cacheTypesAndCount[i][1]))
+
+        return answerTypesAndCount, queryTypesAndCount, cacheTypesAndCount
+    except IndexError:
+        return [('ERROR', 100)]
+
 # Vérifie l'utilisation des blacklists
 # Dans le dossier /unbound.conf.d/ se situe (avec l'extension .lst) les fichiers de blacklist
 # Si la blacklist se situe dans la zone d'include du fichier "default.conf", alors la valeur associé a la blacklist sera True, False sinon
