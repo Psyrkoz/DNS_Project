@@ -16,7 +16,7 @@ def isPasswordStrong(password):
 
     return not (lengthError or digitError or uppercaseError or lowercaseError or symbolError)
 
-# Retourne la liste des URL blacklisté
+# Retourne la liste des URL blacklisté d'une blacklist spécifique
 def getBlacklistURL(blacklistName):
     try:
         file = open(config.unbound_folder + '/unbound.conf.d/' + blacklistName, 'r')
@@ -28,6 +28,8 @@ def getBlacklistURL(blacklistName):
         print("Erreur")
         return []
 
+# Supprime la blacklist [blakclistName] (.lst inclu dans le nom)
+# Vérifie au préalable que le fichier spécifié se situe dans [config.unbound_folder + "/unbound.conf.d/"]
 def deleteBlacklist(blacklistName):
     if blacklistName in os.listdir(config.unbound_folder + "/unbound.conf.d/"):
         namesAndUsage = getBlacklistFilesAndUsage()
@@ -45,7 +47,20 @@ def deleteBlacklist(blacklistName):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
 
-# Ajoute a la blacklist une liste de nom de domaine
+# Vide entièrement le fichier de blacklist [blacklistName]
+# Une vérification que le fichier spécifié se situe dans [config.unbound_folder + "/unbound.conf.d/"] est faite au préalable
+def emptyBlacklist(blacklistName):
+    if os.path.isfile(config.unbound_folder + "/unbound.conf.d/" + blacklistName):
+        try:
+            open(config.unbound_folder + "/unbound.conf.d/" + blacklistName, 'w')
+        except IOError:
+            print("Error wiping the content of '" + blacklistName + "'")
+    else:
+        print("The file '" + blacklistName + "' does not exists")
+    
+
+# Ajoute a la blacklist une liste de nom de domaine contenu dans le fichier situé dans [path]
+# Le fichier situé dans dans [path] est supprimé directement après
 def addListToBlacklist(blacklistName, path):
     try:
         file = open(path, 'r')
@@ -92,9 +107,13 @@ def deleteURL(blacklistName, url):
     except IOError:
         return "", "Impossible de supprimer l'URL '" + url + "'"
 
+# Vérifie l'état du service unbound
+# os.system("sudo systemctl is-active --quiet unbound") retourne 0 si le service est lancé
 def getServiceStatus():
     return True if os.system("sudo systemctl is-active --quiet unbound") == 0 else False
 
+
+# Permet de gérer l'appui de bouton gérant le service unbound dans /parameters
 def handleParametersArgument(arg):
     status = getServiceStatus()
     if(arg == 'startUnbound' and not status):
@@ -106,6 +125,7 @@ def handleParametersArgument(arg):
     else:
         print("Bad method / Wrong method called")
 
+# Retourne le nombre d'url dans les différentes blacklists en cours d'utilisation
 def getBlacklistCount():
     namesAndUsage = getBlacklistFilesAndUsage()
     try:
@@ -119,6 +139,11 @@ def getBlacklistCount():
         print("The file 'blacklist.lst' in /unbound.conf.d/ does not exist")
         return 0
 
+# Retourne les statistiques de unbound
+# Retourne:
+#   - L'uptime du service
+#   - Le nombre de requêtes faites
+#   - Le nombre de requêtes bloquées
 def getUnboundStats():
     stats = str(subprocess.check_output(['sudo', 'unbound-control', 'stats']))
 
@@ -139,6 +164,9 @@ def getUnboundStats():
     except IndexError:
         return "/", "/", "/"
 
+# Vérifie l'utilisation des blacklists
+# Dans le dossier /unbound.conf.d/ se situe (avec l'extension .lst) les fichiers de blacklist
+# Si la blacklist se situe dans la zone d'include du fichier "default.conf", alors la valeur associé a la blacklist sera True, False sinon
 def getBlacklistFilesAndUsage():
     blacklistInUse = []
     try:
@@ -194,7 +222,22 @@ def createBlacklist(name):
                 return "Une erreur non attendu est survenu..."
         else:
             return "Le nom de la blacklist ne peut que contenir des lettres"
-    
-    
 
+# Vérifie que le fichier "default.conf" soit présent dans le dossier /unbound.conf.d/
+# Si non présent, la fonction crée le fichier avec les valeurs par défaut
+# Réecris le fichier unbound.conf pour inclure tout les fichiers .conf situé dans /unbound.conf.d/
+def check_unbound_configuration():
+    default_conf_exist = os.path.isfile(config.unbound_folder + "/unbound.conf.d/default.conf")
+    try:
+        with open(config.unbound_folder + "/unbound.conf", 'w') as f:
+            f.write('include: "' + config.unbound_folder + '/unbound.conf.d/*.conf"')
+    except IOError:
+        print("Unable to replace unbound.conf content")
     
+    if not default_conf_exist:
+        try:
+            lines = ['server:\n', '\tchroot: ""\n', '\tverbosity: 1\n', '\tlogfile: "/var/log/unbound.log"\n', '\tlog-time-ascii: yes\n', '\tlog-queries: yes\n', '\tlog-replies: yes\n', '\n', '\tstatistics-interval: 0\n', '\textended-statistics: yes\n', '\tstatistics-cumulative: yes\n', '\tinterface: 0.0.0.0\n', '\t\n', '\taccess-control: 127.0.0.0/8 allow\n', '\taccess-control: 192.168.0.0/24 allow\n', '\taccess-control: 192.168.1.0/24 allow\n', '\tport: 53\n', '\tdo-ip6: no\n', '\tdo-ip4: yes\n', '\tdo-udp: yes\n', '\tdo-tcp: yes\n', '\n', '\n', 'remote-control:\n', '\n', '\tcontrol-enable: yes\n', '\tcontrol-use-cert: no\n', '\n', 'forward-zone:\n', '\tname: "."\n', '\tforward-addr: 8.8.8.8\n', '\n']
+            with open(config.unbound_folder + "/unbound.conf.d/default.conf", 'w') as f:
+                f.writelines(lines)
+        except IOError:
+            print("Unable to write default value for /unbound.conf.d/default.conf")

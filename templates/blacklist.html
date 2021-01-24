@@ -32,6 +32,11 @@
                 <button type="submit" class="btn btn-secondary">Ajouter une liste d'URL</button>
             </div>
         </form>
+        <form class="col-6 form-inline custom-centered" action="{{url_for('blacklist_addList', blacklistName=blacklistName)}}" method="POST" enctype="multipart/form-data">
+            <div class="form-group row">
+                <a href="{{url_for('emptyBlacklist', blacklistName=blacklistName)}}" class="btn btn-danger">Vider la blacklist</a>
+            </div>
+        </form>
         
         {% if session['error_message'] %}
         <p class="error_message">{{ session['error_message'] }}</p>

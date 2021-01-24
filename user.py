@@ -13,6 +13,9 @@ class UserModel(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True)
     password_hash = db.Column(db.String(255))
  
+    def set_username(self, username):
+        self.username = username
+
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
      

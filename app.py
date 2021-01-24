@@ -33,7 +33,7 @@ def init():
 @app.route('/')
 def root():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('parameters'))
     else:
         return redirect(url_for('connexion'))
 
@@ -47,7 +47,7 @@ def connexion():
         user = UserModel.query.filter_by(username = username).first()
         if(user is not None and user.check_password(request.form['password'])):
             login_user(user)
-            return redirect(url_for('home'))
+            return redirect(url_for('parameters'))
         else:
             session['error_message'] = 'Vérifier les identifiants de connexions'
     return render_template("login.html")
@@ -74,15 +74,26 @@ def account():
         username = current_user.username
         user = UserModel.query.filter_by(username=username).first()
         if(user is not None and user.check_password(request.form['current_password'])):
-            if(request.form['new_password'] == request.form['new_password_confirm']):
-                if(functions.isPasswordStrong(request.form['new_password'])):
-                    user.set_password(request.form['new_password'])
+            # Changement de nom de compte
+            if(request.form['username'] != user.get_username()):
+                if(UserModel.query.filter_by(username=request.form['username']).first() == None): # Aucun autre user a ce username -> On peut le changer
+                    user.set_username(request.form['username'])
                     db.session.commit()
-                    session['success_message'] = 'Votre mot de passe à bien été modifié'
+                    session['success_message'] = 'Le nom de compte a bien été modifié'
                 else:
-                    session['error_message'] = 'Le mot de passe doit contenir au moins 1 lettre majuscule et minuscule, 1 chiffres et 1 symbole'
-            else:
-                session['error_message'] = 'Les deux mots de passe ne sont pas identiques'
+                    session['error_message'] = "Le nom de compte est déjà pris par un autre utilisateur"
+
+            # Changement de password
+            if(request.form['new_password'] != ''):
+                if(request.form['new_password'] == request.form['new_password_confirm']):
+                    if(functions.isPasswordStrong(request.form['new_password'])):
+                        user.set_password(request.form['new_password'])
+                        db.session.commit()
+                        session['success_message'] += 'Votre mot de passe à bien été modifié'
+                    else:
+                        session['error_message'] += 'Le mot de passe doit contenir au moins 1 lettre majuscule et minuscule, 1 chiffres et 1 symbole'
+                else:
+                    session['error_message'] = 'Les deux mots de passe ne sont pas identiques'
         else:
             session['error_message'] = 'Le mot de passe actuel n\'est pas le bon'
         return render_template('account.html')
@@ -129,6 +140,12 @@ def blacklist_addList(blacklistName):
             session['error_message'] = "Il faut choisir un fichier .txt"
 
     return render_template('blacklist.html', urls=functions.getBlacklistURL(blacklistName))
+
+@app.route('/backlist/<string:blacklistName>/empty')
+@login_required
+def emptyBlacklist(blacklistName):
+    functions.emptyBlacklist(blacklistName)
+    return redirect("/blacklist/" + blacklistName)
 
 @app.route('/blacklist/create', methods=['GET', 'POST'])
 @login_required
@@ -202,8 +219,10 @@ if(__name__ == '__main__'):
             print("This app should be runned as root")
         else:
             # Verifie que unbound est lancé
+            functions.check_unbound_configuration()
             service = os.system("sudo systemctl is-active --quiet unbound")
             if(service == 0): # 0 = started, 768 = stopped
+                
                 startApp()
             else:
                 print("Unbound service is stopped or does not exist...")
