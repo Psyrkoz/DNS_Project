@@ -248,5 +248,4 @@ def getLogs():
         with open('/var/log/unbound.log', 'r') as f:
             return ''.join(f.readlines())
     except IOError:
-        print("Error reading log file")
-        return []
+        return "Error reading log file"
