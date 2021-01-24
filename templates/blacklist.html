@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div class="form-group row">
-                <button type="submit" class="btn btn-secondary">Ajouter URL</button>
+                <button type="submit" class="btn btn-secondary">Ajouter un domaine</button>
             </div>
             
             <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
@@ -24,12 +24,12 @@
         <!-- Formulaire d'ajout d'url par fichier -->
         <form class="col-6 form-inline custom-centered" action="{{url_for('blacklist_addList', blacklistName=blacklistName)}}" method="POST" enctype="multipart/form-data">
             <div class="form-group row">
-                <label for="file">Fichier contenent les URL</label>
+                <label for="file">Fichier contenent des noms de domaines</label>
                 <input type="file" class="btn btn-secondary" name="file" id="file"></button>
             </div>
             <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
             <div class="form-group row">
-                <button type="submit" class="btn btn-secondary">Ajouter une liste d'URL</button>
+                <button type="submit" class="btn btn-secondary">Ajouter une liste de domaine</button>
             </div>
         </form>
         <form class="col-6 form-inline custom-centered" action="{{url_for('blacklist_addList', blacklistName=blacklistName)}}" method="POST" enctype="multipart/form-data">
@@ -46,7 +46,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col-sm-4">URL</th>
+                    <th scope="col-sm-4">Domaine</th>
                     <th scope="col-sm-1">Action</th>
                 </tr>
             </thead>
