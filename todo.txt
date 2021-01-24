@@ -5,6 +5,9 @@ Create file default.conf
     If they already exists, don't do anything
     Else, create them with templated value
     Modify the unbound.conf (dans config.unbound_folder/unbound.conf) pour lui faire inclure tout les fichiers .conf (include: /etc/unbound/unbound.conf.d/*.conf)
+
+    --- Done
+
 Modify /etc/resolv.conf upon start (to set up the DNS server to use to this machine IP adress (192.168.1.19 for my VM)) (? maybe, not sure of doing it)
 Modify default.conf to set up the forward-zone with standard value like Google open DNS (8.8.8.8 & 8.8.4.4) - Done
 Gestion de multiple blacklist - Done

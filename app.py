@@ -187,6 +187,12 @@ def parametersMethods(method):
     functions.handleParametersArgument(method)
     return redirect('/parameters')
 
+@app.route('/log', methods=['GET'])
+@login_required
+def view_log():
+    logs = functions.getLogs()
+    return render_template('log.html', logs=logs)
+
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request
 def resetMessage(response):
