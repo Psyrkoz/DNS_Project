@@ -51,7 +51,13 @@ def connexion():
             return redirect(url_for('parameters'))
         else:
             session['error_message'] = 'Vérifier les identifiants de connexions'
-    return render_template("login.html")
+
+    status = functions.getServiceStatus()
+    if(status):
+        uptime, number_query, query_blocked = functions.getUnboundStats()
+        return render_template("login.html", status=status, number_query=number_query, query_blocked=query_blocked)
+    else:
+        return render_template("login.html", status=status)
 
 @app.route('/home', methods=['GET'])
 @login_required
@@ -225,9 +231,6 @@ def startApp():
     csrf = CSRFProtect()
     csrf.init_app(app)
     app.run(debug=False, port=config.application_port, ssl_context=('cert.pem', 'key.pem'))
-
-def test():
-    print("TEST")
 
 if(__name__ == '__main__'):
     parser = argparse.ArgumentParser(description="Permet de gérer unbound")

@@ -39,37 +39,6 @@ ul {
     list-style-type: none;
 }
 
-.tick-mark {
-    position: relative;
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-}
-
-.tick-mark::before {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    height: 50%;
-    width: 3px;
-    background-color: #339938;
-    content: "";
-    transform: translateX(10px) rotate(-45deg);
-    transform-origin: left bottom;
-}
-
-.tick-mark::after {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 3px;
-    width: 100%;
-    background-color: #339938;
-    content: "";
-    transform: translateX(10px) rotate(-45deg);
-    transform-origin: left bottom;
-}
-
 .check {
     display: inline-block;
     transform: rotate(45deg);

@@ -24,6 +24,30 @@
                     <input type="submit" class="form-control" value="Se connecter">
                 </div>
                 <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                <br>
+                <ul>
+                    <li>Status du service unbound:&nbsp;&nbsp;{% if status %}<div class="check"></div>{% endif %}{% if not status %}&#10060;{% endif %}</li>
+                </ul>
+                {% if status %}
+                <div class="row">
+                    <div class="col">
+                        <div class="card text-white bg-danger">
+                            <div class="card-header">Nombre de requêtes totals</div>
+                            <div class="card-body">
+                            <p class="card-text">{{number_query}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card text-white bg-danger">
+                            <div class="card-header">Nombre de requêtes bloquées</div>
+                            <div class="card-body">
+                                <p class="card-text">{{query_blocked}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </form>
         </div>
     </div>

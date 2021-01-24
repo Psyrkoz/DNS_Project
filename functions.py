@@ -141,7 +141,7 @@ def getBlacklistCount():
         print("Impossible de lire un des fichiers de blacklist...")
         return 0
 
-# Retourne les statistiques de unbound
+# Retourne les statistiques global de unbound
 # Retourne:
 #   - L'uptime du service
 #   - Le nombre de requêtes faites
@@ -156,8 +156,8 @@ def getUnboundStats():
         h, m = divmod(m, 60)
         uptime = '{:d} heure(s) {:02d} minute(s) {:02d} seconde(s)'.format(h, m, s)
 
-        # Parse le nombre de requêtes   
-        number_query = re.findall(r"num\.query\.type\.A=(\d+)", stats)[0]
+        # Parse le nombre de requêtes IPv4
+        number_query = re.findall(r"num\.query\.class\.IN=(\d+)", stats)[0]
 
         # Parse le nombre de requêtes bloqué (NXDomain)
         number_blocked = re.findall(r"num\.answer\.rcode\.NXDOMAIN=(\d+)", stats)[0]
@@ -165,6 +165,7 @@ def getUnboundStats():
         return uptime, number_query, number_blocked
     except IndexError:
         return "/", "/", "/"
+
 
 # Vérifie l'utilisation des blacklists
 # Dans le dossier /unbound.conf.d/ se situe (avec l'extension .lst) les fichiers de blacklist
