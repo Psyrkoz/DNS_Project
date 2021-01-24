@@ -54,9 +54,9 @@ def emptyBlacklist(blacklistName):
         try:
             open(config.unbound_folder + "/unbound.conf.d/" + blacklistName, 'w')
         except IOError:
-            print("Error wiping the content of '" + blacklistName + "'")
+            print("Erreur lors du vidage de '" + config.unbound_folder + "/unbound.conf.d/" + blacklistName + "'")
     else:
-        print("The file '" + blacklistName + "' does not exists")
+        print("Le fichier '" + config.unbound_folder + "/unbound.conf.d/" + blacklistName + "' n'existe pas...")
     
 
 # Ajoute a la blacklist une liste de nom de domaine contenu dans le fichier situé dans [path]
@@ -123,7 +123,7 @@ def handleParametersArgument(arg):
     elif(arg == 'stopUnbound' and status):
         os.system("sudo service unbound stop")
     else:
-        print("Bad method / Wrong method called")
+        print("Mauvaise méthode appelé")
 
 # Retourne le nombre d'url dans les différentes blacklists en cours d'utilisation
 def getBlacklistCount():
@@ -136,7 +136,7 @@ def getBlacklistCount():
                     somme += sum(1 for _ in blacklistfile)
         return somme
     except IOError:
-        print("The file 'blacklist.lst' in /unbound.conf.d/ does not exist")
+        print("Impossible de lire un des fichiers de blacklist...")
         return 0
 
 # Retourne les statistiques de unbound
@@ -181,7 +181,7 @@ def getBlacklistFilesAndUsage():
         
         return blacklist_files
     except IOError:
-        print("Unable to open default.conf in unbound folder...")
+        print("Impossible d'ouvrir le fichier '" + config.unbound_folder + "/unbound.conf.d/default.conf")
 
 # Rajoute (ou enleve) des blacklists de la liste d'include de default.conf
 def setNewBlacklistUsages(newBlacklistUsage):
@@ -232,7 +232,7 @@ def check_unbound_configuration():
         with open(config.unbound_folder + "/unbound.conf", 'w') as f:
             f.write('include: "' + config.unbound_folder + '/unbound.conf.d/*.conf"')
     except IOError:
-        print("Unable to replace unbound.conf content")
+        print("Impossible de remplacer le contenu de '" + config.unbound_folder + "/unbound.conf'")
     
     if not default_conf_exist:
         try:
@@ -240,12 +240,19 @@ def check_unbound_configuration():
             with open(config.unbound_folder + "/unbound.conf.d/default.conf", 'w') as f:
                 f.writelines(lines)
         except IOError:
-            print("Unable to write default value for /unbound.conf.d/default.conf")
+            print("Impossible d'écrire les valeurs par défaut dans '" + config.unbound_folder+  "/unbound.conf.d/default.conf'")
 
     
 def getLogs():
     try:
-        with open('/var/log/unbound.log', 'r') as f:
-            return ''.join(f.readlines())
+        with open(config.unbound_log_file, 'r') as f:
+            return ''.join(f.readlines()[::-1])
     except IOError:
-        return "Error reading log file"
+        return "Erreur lors de la lecture du fichier de log"
+
+def empty_logs():
+    try:
+        open(config.unbound_log_file, 'w')
+        return "Fichier de log vidé"
+    except IOError:
+        return "Erreur lors du vidage du fichier de log"

@@ -193,6 +193,12 @@ def view_log():
     logs = functions.getLogs()
     return render_template('log.html', logs=logs)
 
+@app.route('/log/empty', methods=['GET'])
+@login_required
+def empty_logs():
+    functions.empty_logs()    
+    return redirect('/log')
+
 # Après chaque requête ont enlève les messages dans la session pour éviter d'afficher des messages non voulu
 @app.after_request
 def resetMessage(response):
