@@ -11,6 +11,7 @@ import datetime
 import functions
 import os
 import config
+import argparse
 
 app = Flask(__name__, template_folder="templates")
 
@@ -225,16 +226,25 @@ def startApp():
     csrf.init_app(app)
     app.run(debug=False, port=config.application_port, ssl_context=('cert.pem', 'key.pem'))
 
+def test():
+    print("TEST")
+
 if(__name__ == '__main__'):
+    parser = argparse.ArgumentParser(description="Permet de gérer unbound")
+    parser.add_argument('--reset-config', action="store_true", help="Permet de remettre a zero les fichiers de configurations du dossier unbound (unbound.conf & default.conf) - Supprime tout les fichiers .lst de unbound.conf.d ainsi que le fichier de log")
+    args = parser.parse_args()
     if platform == "linux" or platform == "linux2":
         if(os.geteuid() != 0):
             print("This app should be runned as root")
         else:
             # Verifie que unbound est lancé
+            if(args.reset_config):
+                functions.resetConfig()
+                os.system("sudo service unbound restart")
+
             functions.check_unbound_configuration()
             service = os.system("sudo systemctl is-active --quiet unbound")
             if(service == 0): # 0 = started, 768 = stopped
-                
                 startApp()
             else:
                 print("Unbound service is stopped or does not exist...")

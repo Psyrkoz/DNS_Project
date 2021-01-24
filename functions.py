@@ -2,6 +2,8 @@ import re
 import os
 import subprocess
 import config
+import pwd
+import grp
 
 ALLOWED_EXTENSION = {'txt'}
 
@@ -236,13 +238,52 @@ def check_unbound_configuration():
     
     if not default_conf_exist:
         try:
-            lines = ['server:\n', '\tchroot: ""\n', '\tverbosity: 1\n', '\tlogfile: "/var/log/unbound.log"\n', '\tlog-time-ascii: yes\n', '\tlog-queries: yes\n', '\tlog-replies: yes\n', '\n', '\tstatistics-interval: 0\n', '\textended-statistics: yes\n', '\tstatistics-cumulative: yes\n', '\tinterface: 0.0.0.0\n', '\t\n', '\taccess-control: 127.0.0.0/8 allow\n', '\taccess-control: 192.168.0.0/24 allow\n', '\taccess-control: 192.168.1.0/24 allow\n', '\tport: 53\n', '\tdo-ip6: no\n', '\tdo-ip4: yes\n', '\tdo-udp: yes\n', '\tdo-tcp: yes\n', '\n', '\n', 'remote-control:\n', '\n', '\tcontrol-enable: yes\n', '\tcontrol-use-cert: no\n', '\n', 'forward-zone:\n', '\tname: "."\n', '\tforward-addr: 8.8.8.8\n', '\n']
+            lines = ['server:\n', '\tchroot: ""\n', '\tverbosity: 1\n', '\tlogfile: "' + config.unbound_log_file + '"\n', '\tlog-time-ascii: yes\n', '\tlog-queries: yes\n', '\tlog-replies: yes\n', '\n', '\tstatistics-interval: 0\n', '\textended-statistics: yes\n', '\tstatistics-cumulative: yes\n', '\tinterface: 0.0.0.0\n', '\t\n', '\taccess-control: 127.0.0.0/8 allow\n', '\taccess-control: 192.168.0.0/24 allow\n', '\taccess-control: 192.168.1.0/24 allow\n', '\tport: 53\n', '\tdo-ip6: no\n', '\tdo-ip4: yes\n', '\tdo-udp: yes\n', '\tdo-tcp: yes\n', '\n', '\n', 'remote-control:\n', '\n', '\tcontrol-enable: yes\n', '\tcontrol-use-cert: no\n', '\n', 'forward-zone:\n', '\tname: "."\n', '\tforward-addr: 8.8.8.8\n', '\n']
             with open(config.unbound_folder + "/unbound.conf.d/default.conf", 'w') as f:
                 f.writelines(lines)
         except IOError:
             print("Impossible d'écrire les valeurs par défaut dans '" + config.unbound_folder+  "/unbound.conf.d/default.conf'")
 
+def resetConfig():
+    # Réécris le fichier unbound.conf
+    try:
+        with open(config.unbound_folder + "/unbound.conf", 'w') as f:
+            f.write('include: "' + config.unbound_folder + '/unbound.conf.d/*.conf"')
+    except IOError:
+        print("Impossible de remplacer le contenu de '" + config.unbound_folder + "/unbound.conf'")
     
+    
+    # Supprime (si existe) le fichier default.conf et le ré écris
+    default_conf_exist = os.path.isfile(config.unbound_folder + "/unbound.conf.d/default.conf")
+    if default_conf_exist:
+        os.remove(config.unbound_folder + "/unbound.conf.d/default.conf")
+    try:
+        lines = ['server:\n', '\tchroot: ""\n', '\tverbosity: 1\n', '\tlogfile: "' + config.unbound_log_file + '"\n', '\tlog-time-ascii: yes\n', '\tlog-queries: yes\n', '\tlog-replies: yes\n', '\n', '\tstatistics-interval: 0\n', '\textended-statistics: yes\n', '\tstatistics-cumulative: yes\n', '\tinterface: 0.0.0.0\n', '\t\n', '\taccess-control: 127.0.0.0/8 allow\n', '\taccess-control: 192.168.0.0/24 allow\n', '\taccess-control: 192.168.1.0/24 allow\n', '\tport: 53\n', '\tdo-ip6: no\n', '\tdo-ip4: yes\n', '\tdo-udp: yes\n', '\tdo-tcp: yes\n', '\n', '\n', 'remote-control:\n', '\n', '\tcontrol-enable: yes\n', '\tcontrol-use-cert: no\n', '\n', 'forward-zone:\n', '\tname: "."\n', '\tforward-addr: 8.8.8.8\n', '\n']
+        with open(config.unbound_folder + "/unbound.conf.d/default.conf", 'w') as f:
+            f.writelines(lines)
+    except IOError:
+            print("Impossible d'écrire les valeurs par défaut dans '" + config.unbound_folder+  "/unbound.conf.d/default.conf'")
+
+    # Supprime tout les fichiers .lst (nos blacklist)
+    for f in os.listdir(config.unbound_folder + "/unbound.conf.d"):
+        if f.endswith(".lst"):
+            os.remove(config.unbound_folder + "/unbound.conf.d/" + f)
+    
+    # Supprime le fichier de log (si existe) et le recrée (et met unbound en tant que owner)
+    log_file_exist = os.path.isfile(config.unbound_log_file)
+    if(log_file_exist):
+        os.remove(config.unbound_log_file)
+    try:
+        f = open(config.unbound_log_file, 'w')
+        f.close()
+        unbound_uid = pwd.getpwnam('unbound').pw_uid
+        unbound_gid = grp.getgrnam('unbound').gr_gid
+        os.chown(config.unbound_log_file, unbound_uid, unbound_gid)
+    except IOError:
+        print("Erreur lors de la re création du logfile")
+    except KeyError:
+        print("L'utilisateur 'unbound' n'existe pas... Avez-vous installé unbound?")
+
 def getLogs():
     try:
         with open(config.unbound_log_file, 'r') as f:
