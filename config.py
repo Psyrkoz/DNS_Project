@@ -6,7 +6,7 @@ database_name = 'dnsproject'
 
 application_port = 5000
 
-# Unbound folder (with / at the end)
+# Unbound folder (without / at the end)
 unbound_folder = "/etc/unbound"
 
 # Unbound log file (The file should be owned by the user 'unbound')
